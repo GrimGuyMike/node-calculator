@@ -1,0 +1,96 @@
+::selection {
+    background-color: green;
+    color: white;
+}
+
+body {
+    font-family: sans-serif;
+    box-sizing: border-box;
+    background-color: beige;
+}
+
+.calc {
+    width: 500px;
+    height: 700px;
+    border: 1px solid black;
+    border-radius: 10px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin-left: -250px;
+    margin-top: -350px;
+    user-select: none;
+    box-shadow: #333 8px 8px 15px;
+    background-color: #eee;
+}
+
+.screen {
+    width: 460px;
+    height: 100px;
+    margin: 20px auto;
+    border: inherit;
+    border-radius: 5px;
+    font-size: 2.5rem;
+    background-color: palegreen;
+    box-shadow: #333 2px 2px 3px inset;
+    position: relative;
+    font-family: monospace;
+    user-select: text;
+    text-align: right;
+    overflow: clip;
+}
+
+.screen > .current {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    margin: 5px;
+}
+
+.screen > .history {
+    font-size: 1.8rem;
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 5px;
+}
+
+.keyboard {
+    width: 460px;
+    height: 535px;
+    margin: 20px auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+.button {
+    border: 1px solid black;
+    border-radius: 5px;
+    min-width: 100px;
+    min-height: 80px;
+    line-height: 80px;
+    text-align: center;
+    font-size: 1.8rem;
+    box-shadow: #333 2px 2px 3px;
+    background-color: #ddd;
+
+    transition-property: background-color,
+                         color;
+    transition-duration: 100ms;
+}
+
+.button.equals {
+    background-color: rgb(175, 205, 230);
+}
+
+.button.clear,
+.button.clear-entry,
+.button.erase {
+    background-color: rgb(230, 175, 175);
+}
+
+.button:hover {
+    background-color: #555;
+    color: white;
+}
