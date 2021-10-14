@@ -7,4 +7,6 @@ const STATIC_PATH = path.join(__dirname, 'public');
 
 app.use(express.static(STATIC_PATH));
 
+app.get('*', (req, res) => res.redirect('/'));
+
 app.listen(PORT, () => console.log(`Server is listening on port ${PORT}`));
