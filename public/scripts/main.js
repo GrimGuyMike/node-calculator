@@ -1,20 +1,15 @@
+import { ScreenObserver } from "./screen.esm.js";
+import { CoreObserver } from "./core.esm.js";
 import { InputHandler } from "./inputHandler.esm.js";
-import { ScreenObserver, ScreenStateChange } from "./screen.esm.js";
 
 function main() {
     const screen = new ScreenObserver();
 
-    let newState = new ScreenStateChange();
-    newState.subscribe(screen);
-    newState.notify({
-        history: 'hello',
-        entry: 'world'
-    });
+    const core = new CoreObserver();
+    core.subscribeForStateChange(screen);
 
     const inputHandler = new InputHandler();
-    inputHandler.subscribeForEvents({
-        update: input => console.log(input)
-    });
+    inputHandler.subscribeForInputEvents(core);
 };
 
 main();

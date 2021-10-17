@@ -1,5 +1,11 @@
 import { Subject } from "./patterns.esm.js";
 
+class InputEvent extends Subject {
+    notify(input) {
+        super.notify(input);
+    };
+};
+
 export class InputHandler {
     newInputEvent = new InputEvent();
 
@@ -14,13 +20,7 @@ export class InputHandler {
         });
     };
 
-    subscribeForEvents(observer) {
+    subscribeForInputEvents(observer) {
         this.newInputEvent.subscribe(observer);
-    };
-};
-
-export class InputEvent extends Subject {
-    notify(input) {
-        super.notify(input);
     };
 };
