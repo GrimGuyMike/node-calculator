@@ -1,3 +1,4 @@
+import { InputHandler } from "./inputHandler.esm.js";
 import { ScreenObserver, ScreenStateChange } from "./screen.esm.js";
 
 function main() {
@@ -8,6 +9,11 @@ function main() {
     newState.notify({
         history: 'hello',
         entry: 'world'
+    });
+
+    const inputHandler = new InputHandler();
+    inputHandler.subscribeForEvents({
+        update: input => console.log(input)
     });
 };
 

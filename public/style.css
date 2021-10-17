@@ -80,13 +80,13 @@ body {
     transition-duration: 100ms;
 }
 
-.button.equals {
+.button[data-role="execute"] {
     background-color: rgb(175, 205, 230);
 }
 
-.button.clear,
-.button.clear-entry,
-.button.erase {
+.button[data-role="clear"],
+.button[data-role="clearEntry"],
+.button[data-role="erase"] {
     background-color: rgb(230, 175, 175);
 }
 
