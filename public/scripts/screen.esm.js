@@ -1,4 +1,4 @@
-import { Observer } from "./patterns.esm.js";
+import { Observer, Subject } from "./patterns.esm.js";
 
 export class ScreenObserver extends Observer {
     _entry = document.querySelector('.screen > .current');
@@ -16,5 +16,11 @@ export class ScreenObserver extends Observer {
         for(let prop in state) {
             this[prop] = state[prop];
         }
+    };
+};
+
+export class ScreenStateChange extends Subject {
+    notify(state) {
+        super.notify(state);
     };
 };
