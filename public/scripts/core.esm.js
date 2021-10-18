@@ -7,8 +7,27 @@ class StateChange extends Subject {
 };
 
 export class CoreObserver extends Observer {
-    operand1 = undefined;
-    operand2 = undefined;
+    operands = {
+        values: ['0', '0'],
+        _current: false,
+
+        get current() {
+            return this.values[Number(this._current)];
+        },
+
+        set current(val) {
+            this.values[Number(this._current)] = val;
+        },
+
+        toggle() {
+            this._current = !this._current;
+        },
+
+        reset() {
+            this.values = ['0', '0'];
+            this._current = false;
+        }
+    };
     result = undefined;
 
     newScreenStateChange = new StateChange();
@@ -24,31 +43,59 @@ export class CoreObserver extends Observer {
                 break;
             };
 
-            case 'clear': {
-                this.clear();
-                break;
+            default: {
+                try {
+                    this[input.role]();
+                } catch(err) {
+                    console.warn(`role: ${input.role} --> ${err.message}`); // ONLY FOR DEVELOPMENT
+                }
             }
         }
     };
 
     appendChar(char) {
-        if(!this.operand1) {
-            this.operand1 = char
+        if(this.operands.current === '0') {
+            if(char === '.') {
+                this.operands.current += char;
+            } else {
+                this.operands.current = char;
+            }
         } else {
-            this.operand1 += char;
+            if(!(char === '.' && this.operands.current.includes(char))) {
+                this.operands.current += char;
+            }
         }
 
-        this.newScreenStateChange.notify({ entry: this.operand1 });
+        this.newScreenStateChange.notify({ entry: this.operands.current });
     };
 
     clear() {
-        this.operand1 = undefined;
-        this.operand2 = undefined;
+        this.operands.reset();
         this.result = undefined;
 
         this.newScreenStateChange.notify({
             history: '',
-            entry: '0'
+            entry: this.operands.current
+        });
+    };
+
+    clearEntry() {
+        this.operands.current = '0';
+
+        this.newScreenStateChange.notify({
+            entry: this.operands.current
+        });
+    };
+
+    erase() {
+        if(this.operands.current.length === 1) {
+            this.operands.current = '0';
+        } else {
+            this.operands.current = this.operands.current.substring(0, this.operands.current.length - 1);
+        }
+
+        this.newScreenStateChange.notify({
+            entry: this.operands.current
         });
     };
 };
