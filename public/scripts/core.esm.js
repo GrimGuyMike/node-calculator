@@ -74,6 +74,10 @@ export class CoreObserver extends Observer {
     };
 
     appendChar(char) {
+        if(this.result) {
+            this.clear();
+        }
+
         if(this.operands.current === '0') {
             if(char === '.') {
                 this.operands.current += char;
