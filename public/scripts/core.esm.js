@@ -43,13 +43,33 @@ export class CoreObserver extends Observer {
                 break;
             };
 
+            case 'invert':
+            case 'clear':
+            case 'clearEntry':
+            case 'erase': {
+                this[input.role]();
+                break;
+            };
+
+            case 'reciprocal':
+            case 'square':
+            case 'squareRoot': {
+                if(this.result) {
+                    this.operands.reset();
+                    this.operands.current = this.result;
+                }
+
+                this[input.role]();
+                break;
+            };
+
             default: {
                 try {
                     this[input.role]();
                 } catch(err) {
                     console.warn(`role: ${input.role} --> ${err.message}`); // ONLY FOR DEVELOPMENT
                 }
-            }
+            };
         }
     };
 
@@ -88,7 +108,10 @@ export class CoreObserver extends Observer {
     };
 
     erase() {
-        if(this.operands.current.length === 1) {
+        const length = this.operands.current.length;
+        const isNegative = this.operands.current.startsWith('-');
+
+        if(length === 1 || (length === 2 && isNegative)) {
             this.operands.current = '0';
         } else {
             this.operands.current = this.operands.current.substring(0, this.operands.current.length - 1);
@@ -96,6 +119,42 @@ export class CoreObserver extends Observer {
 
         this.newScreenStateChange.notify({
             entry: this.operands.current
+        });
+    };
+
+    invert() {
+        this.operands.current = String(-this.operands.current);
+
+        this.newScreenStateChange.notify({ entry: this.operands.current });
+    };
+
+    reciprocal() {
+        const operand = new Decimal(this.operands.current);
+        this.result = (new Decimal(1)).dividedBy(operand).val();
+        
+        this.newScreenStateChange.notify({
+            history: '1/' + operand.val() + '=',
+            entry: this.result
+        });
+    };
+
+    square() {
+        const operand = new Decimal(this.operands.current);
+        this.result = operand.toPower(2).val();
+
+        this.newScreenStateChange.notify({
+            history: '(' + operand.val() + ')^2=',
+            entry: this.result
+        });
+    };
+
+    squareRoot() {
+        const operand = new Decimal(this.operands.current);
+        this.result = operand.squareRoot(0.5).val();
+
+        this.newScreenStateChange.notify({
+            history: 'sqrt(' + operand.val() + ')=',
+            entry: this.result
         });
     };
 };
