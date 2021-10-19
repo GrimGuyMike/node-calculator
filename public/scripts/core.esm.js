@@ -154,7 +154,7 @@ export class CoreObserver extends Observer {
 
     squareRoot() {
         const operand = new Decimal(this.operands.current);
-        this.result = operand.squareRoot(0.5).val();
+        this.result = operand.squareRoot().val();
 
         this.newScreenStateChange.notify({
             history: 'sqrt(' + operand.val() + ')=',
