@@ -48,7 +48,7 @@ export class CoreObserver extends Observer {
                     this.state.total = null;
                 }
 
-                this[input.role]();
+                if(this.state.next) this[input.role]();
                 break;
             };
 
