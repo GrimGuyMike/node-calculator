@@ -7,28 +7,17 @@ class StateChange extends Subject {
 };
 
 export class CoreObserver extends Observer {
-    operands = {
-        values: ['0', '0'],
-        _current: false,
-
-        get current() {
-            return this.values[Number(this._current)];
-        },
-
-        set current(val) {
-            this.values[Number(this._current)] = val;
-        },
-
-        toggle() {
-            this._current = !this._current;
-        },
+    state = {
+        total: null,
+        next: null,
+        operator: null,
 
         reset() {
-            this.values = ['0', '0'];
-            this._current = false;
+            this.total = null;
+            this.next = null;
+            this.operator = null;
         }
     };
-    result = undefined;
 
     newScreenStateChange = new StateChange();
 
@@ -54,9 +43,9 @@ export class CoreObserver extends Observer {
             case 'reciprocal':
             case 'square':
             case 'squareRoot': {
-                if(this.result) {
-                    this.operands.reset();
-                    this.operands.current = this.result;
+                if(this.state.total) {
+                    this.state.next = this.state.total;
+                    this.state.total = null;
                 }
 
                 this[input.role]();
@@ -74,91 +63,114 @@ export class CoreObserver extends Observer {
     };
 
     appendChar(char) {
-        if(this.result) {
-            this.clear();
-        }
+        if(this.state.total && !this.state.next) this.clear();
 
-        if(this.operands.current === '0') {
-            if(char === '.') {
-                this.operands.current += char;
-            } else {
-                this.operands.current = char;
+        if(!this.state.next) {
+            switch(char) {
+                case '.': {
+                    this.state.next = '0' + char;
+                    break;
+                };
+
+                case '0': break;
+                
+                default: this.state.next = char;
             }
         } else {
-            if(!(char === '.' && this.operands.current.includes(char))) {
-                this.operands.current += char;
+            switch(char) {
+                case '.': {
+                    if(this.state.next.includes(char)) break;
+                    this.state.next += char;
+                    break;
+                };
+
+                case '0': {
+                    if(this.state.next === char) break;
+                    this.state.next += char;
+                    break;
+                };
+
+                default: this.state.next += char;
             }
         }
 
-        this.newScreenStateChange.notify({ entry: this.operands.current });
+        this.newScreenStateChange.notify({ entry: this.state.next ?? '0' });
     };
 
     clear() {
-        this.operands.reset();
-        this.result = undefined;
+        this.state.reset();
 
         this.newScreenStateChange.notify({
             history: '',
-            entry: this.operands.current
+            entry: '0'
         });
     };
 
     clearEntry() {
-        this.operands.current = '0';
+        if(this.state.total && !this.state.next) this.clear();
+
+        this.state.next = null;
 
         this.newScreenStateChange.notify({
-            entry: this.operands.current
+            entry: '0'
         });
     };
 
     erase() {
-        const length = this.operands.current.length;
-        const isNegative = this.operands.current.startsWith('-');
+        const isDecimal = this.state.next.includes('.');
+        const absIsSingleDigit = Math.abs(+this.state.next) < 10;
+        const [intPart, decPart] = this.state.next.split('.');
+        const intPartIsSingleDigit = Math.abs(+intPart) < 10;
 
-        if(length === 1 || (length === 2 && isNegative)) {
-            this.operands.current = '0';
+        if((!isDecimal && absIsSingleDigit) || (isDecimal && intPartIsSingleDigit && !decPart)) {
+            this.state.next = null;
         } else {
-            this.operands.current = this.operands.current.substring(0, this.operands.current.length - 1);
+            this.state.next = this.state.next.substring(0, this.state.next.length - 1);
         }
 
         this.newScreenStateChange.notify({
-            entry: this.operands.current
+            entry: this.state.next ?? '0'
         });
     };
 
     invert() {
-        this.operands.current = String(-this.operands.current);
+        if(this.state.next) {
+            this.state.next = String(-this.state.next);
 
-        this.newScreenStateChange.notify({ entry: this.operands.current });
+            this.newScreenStateChange.notify({ entry: this.state.next });
+        }
     };
 
     reciprocal() {
-        const operand = new Decimal(this.operands.current);
-        this.result = (new Decimal(1)).dividedBy(operand).val();
-        
+        const num = new Decimal(this.state.next);
+        this.state.next = null;
+        this.state.total = num.toPower(-1).val();
+
         this.newScreenStateChange.notify({
-            history: '1/' + operand.val() + '=',
-            entry: this.result
+            history: '1/' + num.val() + '=',
+            entry: this.state.total
         });
     };
 
     square() {
-        const operand = new Decimal(this.operands.current);
-        this.result = operand.toPower(2).val();
+        const num = new Decimal(this.state.next);
+        this.state.next = null;
+        this.state.total = num.toPower(2).val();
 
         this.newScreenStateChange.notify({
-            history: '(' + operand.val() + ')^2=',
-            entry: this.result
+            history: num.val() + '^2=',
+            entry: this.state.total
         });
     };
 
     squareRoot() {
-        const operand = new Decimal(this.operands.current);
-        this.result = operand.squareRoot().val();
+        const num = new Decimal(this.state.next);
+        this.state.next = null;
+        this.state.total = num.squareRoot().val();
 
         this.newScreenStateChange.notify({
-            history: 'sqrt(' + operand.val() + ')=',
-            entry: this.result
+            history: 'sqrt(' + num.val() + ')=',
+            entry: this.state.total
         });
     };
 };
