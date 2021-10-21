@@ -52,18 +52,22 @@ export class CoreObserver extends Observer {
                 break;
             };
 
+            case 'add':
+            case 'subtract':
+            case 'multiply':
+            case 'divide': {
+                this.operation(input);
+                break;
+            };
+
             default: {
-                try {
-                    this[input.role]();
-                } catch(err) {
-                    console.warn(`role: ${input.role} --> ${err.message}`); // ONLY FOR DEVELOPMENT
-                }
+                throw new Error('Unknown input \"' + input.role + '\"');
             };
         }
     };
 
     appendChar(char) {
-        if(this.state.total && !this.state.next) this.clear();
+        if(this.state.total && !this.state.operator) this.clear();
 
         if(!this.state.next) {
             switch(char) {
@@ -171,6 +175,39 @@ export class CoreObserver extends Observer {
         this.newScreenStateChange.notify({
             history: 'sqrt(' + num.val() + ')=',
             entry: this.state.total
+        });
+    };
+
+    operation(input) {
+        if(this.state.total) {
+            if(this.state.operator) {                
+                const prevTotal = new Decimal(this.state.total);
+                
+                switch(this.state.operator.role) {
+                    case 'add': {
+                        this.state.total = prevTotal.plus(this.state.next).val();
+                        break;
+                    };
+                    case 'subtract': {
+                        this.state.total = prevTotal.minus(this.state.next).val();
+                        break;
+                    };
+                    case 'multiply': {
+                        this.state.total = prevTotal.times(this.state.next).val();
+                        break;
+                    };
+                    case 'divide': this.state.total = prevTotal.dividedBy(this.state.next).val();
+                }
+            }
+        } else {
+            this.state.total = this.state.next;
+        }
+        this.state.operator = input;
+        this.state.next = null;
+
+        this.newScreenStateChange.notify({
+            history: this.state.total + this.state.operator.value,
+            entry: this.state.next ?? '0'
         });
     };
 };
