@@ -181,40 +181,7 @@ export class CoreObserver extends Observer {
         });
     };
 
-    operation(input) {
-        if(this.state.total) {
-            if(this.state.operator) {                
-                const prevTotal = new Decimal(this.state.total);
-                
-                switch(this.state.operator.role) {
-                    case 'add': {
-                        this.state.total = prevTotal.plus(this.state.next).val();
-                        break;
-                    };
-                    case 'subtract': {
-                        this.state.total = prevTotal.minus(this.state.next).val();
-                        break;
-                    };
-                    case 'multiply': {
-                        this.state.total = prevTotal.times(this.state.next).val();
-                        break;
-                    };
-                    case 'divide': this.state.total = prevTotal.dividedBy(this.state.next).val();
-                }
-            }
-        } else {
-            this.state.total = this.state.next;
-        }
-        this.state.operator = input;
-        this.state.next = null;
-
-        this.newScreenStateChange.notify({
-            history: this.state.total + this.state.operator.value,
-            entry: this.state.next ?? '0'
-        });
-    };
-
-    execute() {
+    compute() {
         const prevTotal = new Decimal(this.state.total);
                 
         switch(this.state.operator.role) {
@@ -233,8 +200,31 @@ export class CoreObserver extends Observer {
             case 'divide': this.state.total = prevTotal.dividedBy(this.state.next).val();
         }
 
+        return prevTotal.val();
+    };
+
+    operation(input) {
+        if(this.state.total) {
+            if(this.state.operator) {                
+                this.compute();
+            }
+        } else {
+            this.state.total = this.state.next;
+        }
+        this.state.operator = input;
+        this.state.next = null;
+
         this.newScreenStateChange.notify({
-            history: prevTotal.val() + this.state.operator.value + this.state.next + '=',
+            history: this.state.total + this.state.operator.value,
+            entry: this.state.next ?? '0'
+        });
+    };
+
+    execute() {
+        const prevTotal = this.compute();
+
+        this.newScreenStateChange.notify({
+            history: prevTotal + this.state.operator.value + this.state.next + '=',
             entry: this.state.total
         });
         this.state.operator = null;
