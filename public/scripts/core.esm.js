@@ -44,12 +44,7 @@ export class CoreObserver extends Observer {
             case 'reciprocal':
             case 'square':
             case 'squareRoot': {
-                if(this.state.total) {
-                    this.state.next = this.state.total;
-                    this.state.total = null;
-                }
-
-                if(this.state.next) this[input.role]();
+                this.unary(input);
                 break;
             };
 
@@ -148,39 +143,41 @@ export class CoreObserver extends Observer {
         }
     };
 
-    reciprocal() {
-        const num = new Decimal(this.state.next);
-        this.state.next = null;
-        this.state.total = num.toPower(-1).val();
+    unary(input) {
+        if(this.state.total) {
+            this.state.next = this.state.total;
+            this.state.total = null;
+        }
 
-        this.newScreenStateChange.notify({
-            history: '1/' + num.val() + '=',
-            entry: this.state.total
-        });
+        if(this.state.next) {
+            const num = new Decimal(this.state.next);
+            this.state.next = null;
+
+            var history;
+            switch(input.role) {
+                case 'reciprocal': {
+                    this.state.total = num.toPower(-1).val();
+                    history = '1/' + num.val() + '=';
+                    break;
+                };
+                case 'square': {
+                    this.state.total = num.toPower(2).val();
+                    history = num.val() + '^2=';
+                    break;
+                };
+                case 'squareRoot': {
+                    this.state.total = num.squareRoot().val();
+                    history = 'sqrt(' + num.val() + ')=';
+                };
+            }
+
+            this.newScreenStateChange.notify({
+                history,
+                entry: this.state.total
+            });
+        }
     };
-
-    square() {
-        const num = new Decimal(this.state.next);
-        this.state.next = null;
-        this.state.total = num.toPower(2).val();
-
-        this.newScreenStateChange.notify({
-            history: num.val() + '^2=',
-            entry: this.state.total
-        });
-    };
-
-    squareRoot() {
-        const num = new Decimal(this.state.next);
-        this.state.next = null;
-        this.state.total = num.squareRoot().val();
-
-        this.newScreenStateChange.notify({
-            history: 'sqrt(' + num.val() + ')=',
-            entry: this.state.total
-        });
-    };
-
+    
     compute() {
         const prevTotal = new Decimal(this.state.total);
                 
