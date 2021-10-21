@@ -35,7 +35,8 @@ export class CoreObserver extends Observer {
             case 'invert':
             case 'clear':
             case 'clearEntry':
-            case 'erase': {
+            case 'erase':
+            case 'execute': {
                 this[input.role]();
                 break;
             };
@@ -61,7 +62,7 @@ export class CoreObserver extends Observer {
             };
 
             default: {
-                throw new Error('Unknown input \"' + input.role + '\"');
+                console.warn('Unknown input \"' + input.role + '\"');
             };
         }
     };
@@ -209,5 +210,32 @@ export class CoreObserver extends Observer {
             history: this.state.total + this.state.operator.value,
             entry: this.state.next ?? '0'
         });
+    };
+
+    execute() {
+        const prevTotal = new Decimal(this.state.total);
+                
+        switch(this.state.operator.role) {
+            case 'add': {
+                this.state.total = prevTotal.plus(this.state.next).val();
+                break;
+            };
+            case 'subtract': {
+                this.state.total = prevTotal.minus(this.state.next).val();
+                break;
+            };
+            case 'multiply': {
+                this.state.total = prevTotal.times(this.state.next).val();
+                break;
+            };
+            case 'divide': this.state.total = prevTotal.dividedBy(this.state.next).val();
+        }
+
+        this.newScreenStateChange.notify({
+            history: prevTotal.val() + this.state.operator.value + this.state.next + '=',
+            entry: this.state.total
+        });
+        this.state.operator = null;
+        this.state.next = null;
     };
 };
