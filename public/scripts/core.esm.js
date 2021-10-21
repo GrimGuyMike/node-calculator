@@ -112,7 +112,7 @@ export class CoreObserver extends Observer {
     };
 
     clearEntry() {
-        if(this.state.total && !this.state.next) this.clear();
+        if(this.state.total && !this.state.operator) this.clear();
 
         this.state.next = null;
 
@@ -122,6 +122,8 @@ export class CoreObserver extends Observer {
     };
 
     erase() {
+        if(this.state.total && !this.state.operator) this.clear();
+
         const isDecimal = this.state.next.includes('.');
         const absIsSingleDigit = Math.abs(+this.state.next) < 10;
         const [intPart, decPart] = this.state.next.split('.');
