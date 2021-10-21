@@ -56,6 +56,11 @@ export class CoreObserver extends Observer {
                 break;
             };
 
+            case 'percent': {
+                this.percent();
+                break;
+            };
+
             default: {
                 console.warn('Unknown input \"' + input.role + '\"');
             };
@@ -226,5 +231,27 @@ export class CoreObserver extends Observer {
         });
         this.state.operator = null;
         this.state.next = null;
+    };
+
+    percent() {
+        if(this.state.next) {
+            if(this.state.operator?.role === 'divide') {
+                if(this.state.total.includes('-') || this.state.next.includes('-')) return;
+
+                const prevTotal = new Decimal(this.state.total);
+                this.state.total = prevTotal.dividedBy(this.state.next).times('100').val();
+                this.newScreenStateChange.notify({
+                    history: prevTotal.val() + '/' + this.state.next + '=',
+                    entry: this.state.total + '%'
+                });
+                this.state.operator = null;
+                this.state.next = null;
+                return;
+            }
+            
+            if(this.state.next.includes('-')) return;
+            this.state.next = (new Decimal(this.state.next)).dividedBy('100').val();
+            this.newScreenStateChange.notify({ entry: this.state.next });
+        }
     };
 };
