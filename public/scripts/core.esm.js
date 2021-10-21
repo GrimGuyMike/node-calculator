@@ -52,7 +52,7 @@ export class CoreObserver extends Observer {
             case 'subtract':
             case 'multiply':
             case 'divide': {
-                this.operation(input);
+                this.binary(input);
                 break;
             };
 
@@ -177,7 +177,7 @@ export class CoreObserver extends Observer {
             });
         }
     };
-    
+
     compute() {
         const prevTotal = new Decimal(this.state.total);
                 
@@ -200,7 +200,7 @@ export class CoreObserver extends Observer {
         return prevTotal.val();
     };
 
-    operation(input) {
+    binary(input) {
         if(this.state.total) {
             if(this.state.operator) {                
                 this.compute();
