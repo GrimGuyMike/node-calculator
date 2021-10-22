@@ -222,7 +222,7 @@ export class CoreObserver extends Observer {
 
     binary(input) {
         if(this.state.total) {
-            if(this.state.operator) {
+            if(this.state.operator && this.state.next) {
                 this.compute();
             }
         } else {
