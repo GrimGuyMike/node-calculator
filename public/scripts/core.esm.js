@@ -26,44 +26,57 @@ export class CoreObserver extends Observer {
     };
 
     update(input) {
-        switch(input.role) {
-            case 'char': {
-                this.appendChar(input.value);
-                break;
-            };
+        try {
+            switch(input.role) {
+                case 'char': {
+                    this.appendChar(input.value);
+                    break;
+                };
+    
+                case 'invert':
+                case 'clear':
+                case 'clearEntry':
+                case 'erase':
+                case 'execute': {
+                    this[input.role]();
+                    break;
+                };
+    
+                case 'reciprocal':
+                case 'square':
+                case 'squareRoot': {
+                    this.unary(input);
+                    break;
+                };
+    
+                case 'add':
+                case 'subtract':
+                case 'multiply':
+                case 'divide': {
+                    this.binary(input);
+                    break;
+                };
+    
+                case 'percent': {
+                    this.percent();
+                    break;
+                };
+    
+                default: {
+                    console.warn('Unknown input \"' + input.role + '\"');
+                };
+            }
+        } catch(err) {
+            if(err instanceof Error && /DecimalError/.test(err.message)) {
+                let entry = err.message.split(' ');
+                entry.shift();
+                entry = entry.join(' ');
 
-            case 'invert':
-            case 'clear':
-            case 'clearEntry':
-            case 'erase':
-            case 'execute': {
-                this[input.role]();
-                break;
-            };
-
-            case 'reciprocal':
-            case 'square':
-            case 'squareRoot': {
-                this.unary(input);
-                break;
-            };
-
-            case 'add':
-            case 'subtract':
-            case 'multiply':
-            case 'divide': {
-                this.binary(input);
-                break;
-            };
-
-            case 'percent': {
-                this.percent();
-                break;
-            };
-
-            default: {
-                console.warn('Unknown input \"' + input.role + '\"');
-            };
+                this.newScreenStateChange.notify({
+                    history: 'Error',
+                    entry
+                });
+            }
         }
     };
 
@@ -124,20 +137,22 @@ export class CoreObserver extends Observer {
     erase() {
         if(this.state.total && !this.state.operator) this.clear();
 
-        const isDecimal = this.state.next.includes('.');
-        const absIsSingleDigit = Math.abs(+this.state.next) < 10;
-        const [intPart, decPart] = this.state.next.split('.');
-        const intPartIsSingleDigit = Math.abs(+intPart) < 10;
-
-        if((!isDecimal && absIsSingleDigit) || (isDecimal && intPartIsSingleDigit && !decPart)) {
-            this.state.next = null;
-        } else {
-            this.state.next = this.state.next.substring(0, this.state.next.length - 1);
+        if(this.state.next) {
+            const isDecimal = this.state.next.includes('.');
+            const absIsSingleDigit = Math.abs(+this.state.next) < 10;
+            const [intPart, decPart] = this.state.next.split('.');
+            const intPartIsSingleDigit = Math.abs(+intPart) < 10;
+    
+            if((!isDecimal && absIsSingleDigit) || (isDecimal && intPartIsSingleDigit && !decPart)) {
+                this.state.next = null;
+            } else {
+                this.state.next = this.state.next.substring(0, this.state.next.length - 1);
+            }
+    
+            this.newScreenStateChange.notify({
+                entry: this.state.next ?? '0'
+            });
         }
-
-        this.newScreenStateChange.notify({
-            entry: this.state.next ?? '0'
-        });
     };
 
     invert() {
@@ -154,33 +169,33 @@ export class CoreObserver extends Observer {
             this.state.total = null;
         }
 
-        if(this.state.next) {
-            const num = new Decimal(this.state.next);
-            this.state.next = null;
+        if(!this.state.next) this.state.next = '0';
 
-            var history;
-            switch(input.role) {
-                case 'reciprocal': {
-                    this.state.total = num.toPower(-1).val();
-                    history = '1/' + num.val() + '=';
-                    break;
-                };
-                case 'square': {
-                    this.state.total = num.toPower(2).val();
-                    history = num.val() + '^2=';
-                    break;
-                };
-                case 'squareRoot': {
-                    this.state.total = num.squareRoot().val();
-                    history = 'sqrt(' + num.val() + ')=';
-                };
-            }
+        const num = new Decimal(this.state.next);
+        this.state.next = null;
 
-            this.newScreenStateChange.notify({
-                history,
-                entry: this.state.total
-            });
+        var history;
+        switch(input.role) {
+            case 'reciprocal': {
+                this.state.total = num.toPower(-1).val();
+                history = '1/' + num.val() + '=';
+                break;
+            };
+            case 'square': {
+                this.state.total = num.toPower(2).val();
+                history = num.val() + '^2=';
+                break;
+            };
+            case 'squareRoot': {
+                this.state.total = num.squareRoot().val();
+                history = 'sqrt(' + num.val() + ')=';
+            };
         }
+
+        this.newScreenStateChange.notify({
+            history,
+            entry: this.state.total
+        });
     };
 
     compute() {
@@ -207,10 +222,11 @@ export class CoreObserver extends Observer {
 
     binary(input) {
         if(this.state.total) {
-            if(this.state.operator) {                
+            if(this.state.operator) {
                 this.compute();
             }
         } else {
+            if(!this.state.next) this.state.next = '0';
             this.state.total = this.state.next;
         }
         this.state.operator = input;
@@ -223,14 +239,18 @@ export class CoreObserver extends Observer {
     };
 
     execute() {
-        const prevTotal = this.compute();
+        if(this.state.total) {
+            if(!this.state.next) this.state.next = '0';
 
-        this.newScreenStateChange.notify({
-            history: prevTotal + this.state.operator.value + this.state.next + '=',
-            entry: this.state.total
-        });
-        this.state.operator = null;
-        this.state.next = null;
+            const prevTotal = this.compute();
+    
+            this.newScreenStateChange.notify({
+                history: prevTotal + this.state.operator.value + this.state.next + '=',
+                entry: this.state.total
+            });
+            this.state.operator = null;
+            this.state.next = null;
+        }
     };
 
     percent() {
