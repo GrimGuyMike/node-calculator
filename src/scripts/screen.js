@@ -1,4 +1,4 @@
-import { Observer } from "./patterns.esm.js";
+import { Observer } from "./patterns";
 
 export class ScreenObserver extends Observer {
     _entry = document.querySelector('.screen > .current');

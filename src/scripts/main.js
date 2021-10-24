@@ -1,6 +1,8 @@
-import { ScreenObserver } from "./screen.esm.js";
-import { CoreObserver } from "./core.esm.js";
-import { InputHandler } from "./inputHandler.esm.js";
+import '../style.css';
+import { ScreenObserver } from "./screen";
+import { CoreObserver } from "./core";
+import { InputHandler } from "./inputHandler";
+import Decimal from "decimal.js-light";
 
 function main() {
     Decimal.set({ precision: 15, rounding: 4 });

@@ -1,4 +1,5 @@
-import { Observer, Subject } from "./patterns.esm.js";
+import { Observer, Subject } from "./patterns";
+import Decimal from "decimal.js-light";
 
 class StateChange extends Subject {
     notify(state) {

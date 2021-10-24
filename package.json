@@ -2,19 +2,29 @@
   "name": "calculator",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "private": true,
   "scripts": {
     "start": "node index",
-    "heroku-postbuild": "cd public && npm install",
-    "test": "nodemon index"
+    "heroku-postbuild": "npm run prodBuild",
+    "devBuild": "webpack --mode development",
+    "prodBuild": "webpack --mode production",
+    "test": "webpack --mode development && nodemon index"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "nodemon": "^2.0.7"
+    "clean-webpack-plugin": "^4.0.0",
+    "copy-webpack-plugin": "^9.0.1",
+    "css-loader": "^6.4.0",
+    "html-webpack-plugin": "^5.4.0",
+    "nodemon": "^2.0.7",
+    "style-loader": "^3.3.1",
+    "webpack": "^5.59.1",
+    "webpack-cli": "^4.9.1"
   },
   "dependencies": {
+    "decimal.js-light": "^2.5.1",
     "express": "^4.17.1"
   }
 }

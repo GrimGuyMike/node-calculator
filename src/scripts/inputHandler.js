@@ -1,4 +1,4 @@
-import { Subject } from "./patterns.esm.js";
+import { Subject } from "./patterns";
 
 class InputEvent extends Subject {
     notify(input) {
