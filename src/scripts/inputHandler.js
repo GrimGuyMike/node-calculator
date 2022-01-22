@@ -7,14 +7,14 @@ class InputEvent extends Subject {
 };
 
 export class InputHandler {
-    newInputEvent = new InputEvent();
+    inputEvent = new InputEvent();
 
     constructor() {
         const buttons = document.querySelectorAll('.button');
 
         buttons.forEach(button => {
             button.addEventListener('click', e => {
-                this.newInputEvent.notify({
+                this.inputEvent.notify({
                     role: e.target.getAttribute('data-role'),
                     value: e.target.getAttribute('data-value')
                 });
@@ -24,7 +24,7 @@ export class InputHandler {
         buttons.forEach(button => {
             button.addEventListener('keydown', e => {
                 if(e.code === 'Enter') {
-                    this.newInputEvent.notify({
+                    this.inputEvent.notify({
                         role: e.target.getAttribute('data-role'),
                         value: e.target.getAttribute('data-value')
                     });
@@ -33,7 +33,7 @@ export class InputHandler {
         });
     };
 
-    subscribeForInputEvents(observer) {
-        this.newInputEvent.subscribe(observer);
+    subscribe(observer) {
+        this.inputEvent.subscribe(observer);
     };
 };

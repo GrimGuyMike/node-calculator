@@ -18,4 +18,4 @@ export class Subject {
     notify(change) {
         this.observers.forEach(observer => observer.update(change));
     };
-}
+};

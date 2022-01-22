@@ -20,10 +20,10 @@ export class CoreObserver extends Observer {
         }
     };
 
-    newScreenStateChange = new StateChange();
+    screenStateChange = new StateChange();
 
-    subscribeForStateChange(screenObserver) {
-        this.newScreenStateChange.subscribe(screenObserver);
+    subscribe(screenObserver) {
+        this.screenStateChange.subscribe(screenObserver);
     };
 
     update(input) {
@@ -73,7 +73,7 @@ export class CoreObserver extends Observer {
                 entry.shift();
                 entry = entry.join(' ');
 
-                this.newScreenStateChange.notify({
+                this.screenStateChange.notify({
                     history: 'Error',
                     entry
                 });
@@ -113,13 +113,13 @@ export class CoreObserver extends Observer {
             }
         }
 
-        this.newScreenStateChange.notify({ entry: this.state.next ?? '0' });
+        this.screenStateChange.notify({ entry: this.state.next ?? '0' });
     };
 
     clear() {
         this.state.reset();
 
-        this.newScreenStateChange.notify({
+        this.screenStateChange.notify({
             history: '',
             entry: '0'
         });
@@ -130,7 +130,7 @@ export class CoreObserver extends Observer {
 
         this.state.next = null;
 
-        this.newScreenStateChange.notify({
+        this.screenStateChange.notify({
             entry: '0'
         });
     };
@@ -139,10 +139,10 @@ export class CoreObserver extends Observer {
         if(this.state.total && !this.state.operator) this.clear();
 
         if(this.state.next) {
-            const isDecimal = this.state.next.includes('.');
-            const absIsSingleDigit = Math.abs(+this.state.next) < 10;
-            const [intPart, decPart] = this.state.next.split('.');
-            const intPartIsSingleDigit = Math.abs(+intPart) < 10;
+            const isDecimal = this.state.next.includes('.'),
+                  absIsSingleDigit = Math.abs(+this.state.next) < 10,
+                  [intPart, decPart] = this.state.next.split('.'),
+                  intPartIsSingleDigit = Math.abs(+intPart) < 10;
     
             if((!isDecimal && absIsSingleDigit) || (isDecimal && intPartIsSingleDigit && !decPart)) {
                 this.state.next = null;
@@ -150,7 +150,7 @@ export class CoreObserver extends Observer {
                 this.state.next = this.state.next.substring(0, this.state.next.length - 1);
             }
     
-            this.newScreenStateChange.notify({
+            this.screenStateChange.notify({
                 entry: this.state.next ?? '0'
             });
         }
@@ -158,9 +158,9 @@ export class CoreObserver extends Observer {
 
     invert() {
         if(this.state.next) {
-            this.state.next = String(-this.state.next);
+            this.state.next = `${ -this.state.next }`;
 
-            this.newScreenStateChange.notify({ entry: this.state.next });
+            this.screenStateChange.notify({ entry: this.state.next });
         }
     };
 
@@ -193,7 +193,7 @@ export class CoreObserver extends Observer {
             };
         }
 
-        this.newScreenStateChange.notify({
+        this.screenStateChange.notify({
             history,
             entry: this.state.total
         });
@@ -233,7 +233,7 @@ export class CoreObserver extends Observer {
         this.state.operator = input;
         this.state.next = null;
 
-        this.newScreenStateChange.notify({
+        this.screenStateChange.notify({
             history: this.state.total + this.state.operator.value,
             entry: this.state.next ?? '0'
         });
@@ -245,7 +245,7 @@ export class CoreObserver extends Observer {
 
             const prevTotal = this.compute();
     
-            this.newScreenStateChange.notify({
+            this.screenStateChange.notify({
                 history: prevTotal + this.state.operator.value + this.state.next + '=',
                 entry: this.state.total
             });
@@ -261,7 +261,7 @@ export class CoreObserver extends Observer {
 
                 const prevTotal = new Decimal(this.state.total);
                 this.state.total = prevTotal.dividedBy(this.state.next).times('100').val();
-                this.newScreenStateChange.notify({
+                this.screenStateChange.notify({
                     history: prevTotal.val() + '/' + this.state.next + '=',
                     entry: this.state.total + '%'
                 });
@@ -272,7 +272,7 @@ export class CoreObserver extends Observer {
             
             if(this.state.next.includes('-')) return;
             this.state.next = (new Decimal(this.state.next)).dividedBy('100').val();
-            this.newScreenStateChange.notify({ entry: this.state.next });
+            this.screenStateChange.notify({ entry: this.state.next });
         }
     };
 };
