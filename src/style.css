@@ -1,96 +1,126 @@
-::selection {
-    background-color: green;
-    color: white;
+:root {
+    --color-calc: linear-gradient(to bottom right, beige, palegoldenrod);
+    --radius-calc: 1rem;
+    --spacing-calc: 1.5rem;
+
+    --color-selection: #464;
+    --color-selection-text: white;
+    --color-screen: #beb;
+    --color-screen-text: #222;
+    --radius-screen: 1rem;
+    --font-size-current: 2.5rem;
+    --font-size-history: 2.6rem;
+
+    --color-button: #ddd;
+    --color-button-hover: #888;
+    --color-button-clear: #fbb;
+    --color-button-execute: #bbf;
+    --color-button-text: #222;
+    --color-button-text-hover: white;
+    --radius-button: 1rem;
+    --font-size-button: 2.6rem;
+    --gap-button: 1rem;
+
+    --color-body: #333;
+    --color-shadow: #2225;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    user-select: none;
 }
 
 body {
-    font-family: sans-serif;
-    box-sizing: border-box;
-    background-color: beige;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-body);
 }
 
 .calc {
-    width: 500px;
-    height: 700px;
-    border: 1px solid black;
-    border-radius: 10px;
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    margin-left: -250px;
-    margin-top: -350px;
-    user-select: none;
-    box-shadow: #333 8px 8px 15px;
-    background-color: #eee;
+    width: 600px;
+    height: 800px;
+    display: flex;
+    flex-direction: column;
+    background: var(--color-calc);
+    border-radius: var(--radius-calc);
 }
 
 .screen {
-    width: 460px;
-    height: 100px;
-    margin: 20px auto;
-    border: inherit;
-    border-radius: 5px;
-    font-size: 2.5rem;
-    background-color: palegreen;
-    box-shadow: #333 2px 2px 3px inset;
-    position: relative;
     font-family: monospace;
+    margin: var(--spacing-calc);
+    background-color: var(--color-screen);
+    color: var(--color-screen-text);
+    height: 140px;
+    border-radius: var(--radius-screen);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 10px;
     user-select: text;
-    text-align: right;
-    overflow: clip;
+    box-shadow: .3rem .2rem .2rem inset var(--color-shadow);
 }
 
-.screen > .current {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    margin: 5px;
+::selection {
+    background-color: var(--color-selection);
+    color: var(--color-selection-text);
 }
 
-.screen > .history {
-    font-size: 1.8rem;
-    position: absolute;
-    top: 0;
-    right: 0;
-    margin: 5px;
+.current {
+    font-size: var(--font-size-current);
+}
+
+.history {
+    font-size: var(--font-size-history);
 }
 
 .keyboard {
-    width: 460px;
-    height: 535px;
-    margin: 20px auto;
+    flex: 1;
     display: grid;
+    grid-template-rows: repeat(6, 1fr);
     grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
+    gap: var(--gap-button);
+    margin: var(--spacing-calc);
+    margin-top: 0;
 }
 
 .button {
-    border: 1px solid black;
-    border-radius: 5px;
-    min-width: 100px;
-    min-height: 80px;
-    line-height: 80px;
-    text-align: center;
-    font-size: 1.8rem;
-    box-shadow: #333 2px 2px 3px;
-    background-color: #ddd;
-
-    transition-property: background-color,
-                         color;
+    font-family: monospace;
+    background-color: var(--color-button);
+    color: var(--color-button-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: var(--radius-button);
+    font-size: var(--font-size-button);
+    cursor: pointer;
+    box-shadow: .3rem .2rem .15rem var(--color-shadow);
     transition-duration: 100ms;
+    transition-property: background-color color box-shadow;
 }
 
-.button[data-role="execute"] {
-    background-color: rgb(175, 205, 230);
+[data-role="clearEntry"],
+[data-role="clear"],
+[data-role="erase"] {
+    background-color: var(--color-button-clear);
 }
 
-.button[data-role="clear"],
-.button[data-role="clearEntry"],
-.button[data-role="erase"] {
-    background-color: rgb(230, 175, 175);
+[data-role="execute"] {
+    background-color: var(--color-button-execute);
+}
+
+.button:active {
+    box-shadow: .1rem 0 .15rem var(--color-shadow);
 }
 
 .button:hover {
-    background-color: #555;
-    color: white;
+    background-color: var(--color-button-hover);
+    color: var(--color-button-text-hover);
 }
