@@ -5,10 +5,10 @@
   "private": true,
   "scripts": {
     "start": "node index",
-    "heroku-postbuild": "npm run prodBuild",
-    "devBuild": "webpack --mode development",
-    "prodBuild": "webpack --mode production",
-    "test": "webpack --mode development && nodemon index"
+    "heroku-postbuild": "npm run build:prod",
+    "build:dev": "webpack --mode development",
+    "build:prod": "webpack --mode production",
+    "dev": "npm run build:dev && nodemon index"
   },
   "keywords": [],
   "author": "",
