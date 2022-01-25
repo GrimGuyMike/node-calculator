@@ -6,7 +6,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 module.exports = {
     context: path.resolve(__dirname, 'src'),
     entry: {
-        main: './scripts/main.js'
+        index: './scripts/index.js'
     },
     output: {
         filename: '[name].[chunkhash].js',
