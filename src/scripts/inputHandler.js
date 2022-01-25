@@ -1,13 +1,7 @@
 import { Subject } from "./patterns";
 
-class InputEvent extends Subject {
-    notify(input) {
-        super.notify(input);
-    };
-};
-
 export class InputHandler {
-    inputEvent = new InputEvent();
+    inputEvent = new Subject();
 
     constructor() {
         const buttons = document.querySelectorAll('.button');

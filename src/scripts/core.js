@@ -1,12 +1,6 @@
 import { Observer, Subject } from "./patterns";
 import Decimal from "decimal.js-light";
 
-class StateChange extends Subject {
-    notify(state) {
-        super.notify(state);
-    };
-};
-
 export class CoreObserver extends Observer {
     state = {
         total: null,
@@ -20,7 +14,7 @@ export class CoreObserver extends Observer {
         }
     };
 
-    screenStateChange = new StateChange();
+    screenStateChange = new Subject();
 
     subscribe(screenObserver) {
         this.screenStateChange.subscribe(screenObserver);
